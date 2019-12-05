@@ -1,5 +1,6 @@
 import path = require('path')
 import ts = require('typescript')
+import allSettled = require('promise.allsettled')
 import { LanguageService } from './language-service'
 import { writeFile } from './file-util'
 import { logEmitted, logError } from './logger'
@@ -16,10 +17,10 @@ export function generate (filenames: string[], options: ts.CompilerOptions): Pro
     noEmitOnError: true
   })
 
-  return Promise.all(
+  return allSettled(
     vueFiles.map(file => {
       const dts = service.getDts(file)
-      const dtsPath = file + '.d.ts'
+      const dtsPath = `${file}${ts.Extension.Dts}`
 
       if (dts.errors.length > 0) {
         logError(dtsPath, dts.errors)

@@ -1,14 +1,18 @@
-import assert = require('assert')
 import path = require('path')
-import ts = require('typescript')
+import { normalize } from './normalize'
 import vueCompiler = require('vue-template-compiler')
-import { readFileSync, exists } from './file-util'
+import { readFileSync } from './file-util'
 
 export interface TsFile {
   rawFileName: string
   srcPath: string | undefined
   version: number
   text: string | undefined
+}
+
+function hasExtension(path: string) {
+  const blocks = path.split('/')
+  return /\./.test(blocks[blocks.length - 1])
 }
 
 export class TsFileMap {
@@ -69,7 +73,7 @@ export class TsFileMap {
   }
 
   /**
-   * Load a TS file that specifed by the argument
+   * Load a TS file that specified by the argument
    * If .vue file is specified, it extract and retain TS code part only.
    */
   private loadFile (fileName: string): TsFile {
@@ -81,7 +85,7 @@ export class TsFileMap {
       text: undefined
     }
 
-    let src = readFileSync(rawFileName)
+    let src = readFileSync(hasExtension(fileName) ? rawFileName : `${rawFileName}.vue`)
     if (src && isVueFile(rawFileName)) {
       const extracted = extractCode(src, fileName)
       src = extracted.content
@@ -114,7 +118,7 @@ export class TsFileMap {
     if (isVueFile(rawFileName)) {
       // To ensure the compiler can process .vue file,
       // we need to add .ts suffix to file name
-      this.files.set(rawFileName + '.ts', file)
+      this.files.set(normalize(rawFileName), file)
     }
 
     this.files.set(rawFileName, file)
@@ -134,7 +138,7 @@ function extractCode (
 } {
   const script = vueCompiler.parseComponent(src, { pad: true }).script
 
-  if (script == null || script.lang !== 'ts') {
+  if (script == null || !['ts', 'tsx', 'js', 'jsx', undefined].includes(script.lang)) {
     return {
       content: undefined,
       srcPath: undefined
@@ -157,17 +161,15 @@ function extractCode (
 }
 
 function isSupportedFile (fileName: string): boolean {
-  return /\.(tsx?|jsx?)$/.test(fileName)
+  return /\.(tsx?|jsx?|d.ts)$/.test(fileName)
 }
 
 function isVueFile (fileName: string): boolean {
-  return /\.vue(?:\.ts)?$/.test(fileName)
+  return /\.vue(?:\.tsx?)?$/.test(fileName)
 }
 
-// If fileName is already suffixed by `.ts` remove it
+// If fileName is already suffixed by `.tsx?` remove it
 function getRawFileName (fileName: string): string {
-  if (/\.vue\.ts$/.test(fileName)) {
-    return fileName.slice(0, -3)
-  }
-  return fileName
+  const [_, ext] = /\.vue(\.tsx)?$/.exec(fileName) || []
+  return ext ? fileName.slice(0, -ext.length) : fileName
 }

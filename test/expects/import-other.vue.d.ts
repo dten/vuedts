@@ -1,5 +1,5 @@
-import Vue, { VueConstructor } from 'vue';
-declare const _default: VueConstructor<{
+import Vue from 'vue';
+declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     foo: string;
-} & Record<never, any> & Vue>;
+}, unknown, unknown, Record<never, any>>;
 export default _default;

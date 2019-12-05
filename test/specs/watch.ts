@@ -3,80 +3,93 @@ import path = require('path')
 import fs = require('fs')
 import rimraf = require('rimraf')
 import chokidar = require('chokidar')
+import ts = require('typescript')
 import { watch } from '../../src/lib/watch'
 
-const noop = () => {/* noop */}
-
 const p = (_path: string) => path.resolve(__dirname, '../.tmp', _path)
+const vueFileName = 'test.vue' as const
+const dFileName = `${vueFileName}${ts.Extension.Dts}`
 
 describe('watch', () => {
-  let watcher: chokidar.FSWatcher
+  let vueFileWatcher: chokidar.FSWatcher
+  let distFileWatcher: chokidar.FSWatcher
 
   beforeEach(done => {
     fs.mkdir(p('./'), () => {
-      watcher = watch([p('./')], {}, true).on('ready', done)
+      vueFileWatcher = watch([p('./**')], {
+        jsx: ts.JsxEmit.Preserve,
+        jsxFactory: 'h',
+        emitDeclarationOnly: true,
+        declaration: true,
+        experimentalDecorators: true
+      }, true).on('ready', done)
+      distFileWatcher = chokidar.watch([p(`./**${ts.Extension.Dts}`)], {
+        usePolling: true
+      })
     })
   })
 
-  afterEach(done => {
-    watcher.close()
-    rimraf(p('./'), done)
+  afterEach((done) => {
+    Promise.all([
+      vueFileWatcher.close(),
+      distFileWatcher.close()
+    ]).then(() => rimraf(p('./'), done))
   })
 
   it('generates d.ts if .vue file is added', done => {
-    watcher.on('add', once(() => {
-      test(p('test.vue.d.ts'), 'export declare const test: string;')
+    distFileWatcher.on('add', once(() => {
+      test(p(dFileName), 'export declare const test: string;')
       done()
     }))
 
-    fs.writeFile(p('test.vue'), vue('export const test: string = ""'), noop)
+    fs.writeFileSync(p(vueFileName), vue('export const test: string = ""'))
   })
 
   it('updates d.ts if .vue file is updated', done => {
-    watcher.on('add', once(() => {
-      test(p('test.vue.d.ts'), 'export declare const test: string;')
-      fs.writeFile(p('test.vue'), vue('export const foo: number = 1'), noop)
+    distFileWatcher.on('add', once(() => {
+      test(p(dFileName), 'export declare const test: string;')
+      fs.writeFileSync(p(vueFileName), vue('export const foo: number = 1'))
     }))
 
-    watcher.on('change', once(() => {
-      test(p('test.vue.d.ts'), 'export declare const foo: number;')
+    distFileWatcher.on('change', once(() => {
+      test(p(dFileName), 'export declare const foo: number;')
       done()
     }))
 
-    fs.writeFile(p('test.vue'), vue('export const test: string = ""'), noop)
+    fs.writeFileSync(p(vueFileName), vue('export const test: string = ""'))
   })
 
   it('removes d.ts if corresponding .vue file is removed', done => {
-    watcher.on('add', once(() => {
-      assert.ok(fs.existsSync(p('test.vue.d.ts')))
-      fs.unlink(p('test.vue'), noop)
+    distFileWatcher.on('add', once(() => {
+      assert.ok(fs.existsSync(p(dFileName)))
+      fs.unlinkSync(p(vueFileName))
     }))
 
-    watcher.on('unlink', once(() => {
-      assert.ifError(fs.existsSync(p('test.vue.d.ts')))
+    distFileWatcher.on('unlink', once(() => {
+      assert.equal(fs.existsSync(p(dFileName)), false)
       done()
     }))
 
-    fs.writeFile(p('test.vue'), vue('export const test: string = ""'), noop)
+    fs.writeFileSync(p(vueFileName), vue('export const test: string = ""'))
   })
 
   it('allows re-add .vue file', done => {
-    fs.writeFileSync(p('test.vue'), vue('export declare let a: string'))
-    fs.unlinkSync(p('test.vue'))
+    fs.writeFileSync(p(vueFileName), vue('export declare let a: string'))
+    fs.unlinkSync(p(vueFileName))
 
-    watcher.on('add', once(() => {
-      test(p('test.vue.d.ts'), 'export declare let b: boolean;')
+    distFileWatcher.on('add', once(() => {
+      test(p(dFileName), 'export declare let b: boolean;')
       done()
     }))
 
-    fs.writeFile(p('test.vue'), vue('export declare let b: boolean'), noop)
+    fs.writeFileSync(p(vueFileName), vue('export declare let b: boolean'))
   })
 
   it('watches addition of derived ts file via .vue file', done => {
-    fs.writeFileSync(p('test.vue'), vue('', { src: 'test-src.ts' }))
+    fs.writeFileSync(p(vueFileName), vue('', { src: 'test-src.ts' }))
 
-    watcher.on('add', once(() => {
-      test(p('test.vue.d.ts'), 'export declare const test: string;')
+    distFileWatcher.on('add', once(() => {
+      test(p(dFileName), 'export declare const test: string;')
       done()
     }))
 
@@ -84,24 +97,28 @@ describe('watch', () => {
   })
 
   it('watches changes of derived ts file via .vue file', done => {
-    fs.writeFileSync(p('test.vue'), vue('', { src: 'test-src.ts' }))
-    fs.writeFileSync(p('test-src.ts'), 'export const a: number = 123')
+    const src = 'test-src.ts'
 
-    watcher.on('add', once(() => {
-      fs.writeFile(p('test-src.ts'), 'export const b: string = ""', noop)
+    distFileWatcher.on('add', once(() => {
+      test(p(dFileName), 'export declare const b: string;')
+      fs.writeFileSync(p(src), 'export const a: number = 123')
+      test(p(src), 'export const a: number = 123')
     }))
 
-    watcher.on('change', once(() => {
-      test(p('test.vue.d.ts'), 'export declare const b: string;')
+    distFileWatcher.on('change', once(() => {
+      test(p(src), 'export const a: number = 123')
+      test(p(dFileName), 'export declare const a: number;')
       done()
     }))
+
+    fs.writeFileSync(p(vueFileName), vue('', { src }))
+    fs.writeFileSync(p(src), 'export const b: string = ""')
   })
 })
 
 function once (fn: () => void): (p: string) => void {
   let done = false
-  return path => {
-    if (!/\.vue.d.ts$/.test(path)) return
+  return () => {
     if (done) return
     fn()
     done = true
@@ -110,10 +127,8 @@ function once (fn: () => void): (p: string) => void {
 
 function test (file: string, expected: string) {
   const data = fs.readFileSync(file, 'utf8')
-  assert.equal(
-    data.trim(),
-    expected.trim()
-  )
+  const [a, b] = [data.trim(), expected.trim()]
+  assert.equal(a, b)
 }
 
 function vue (code: string, attrs: Record<string, string> = {}): string {

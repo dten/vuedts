@@ -1,6 +1,7 @@
 import ts = require('typescript')
-import path = require('path')
 import { TsFileMap } from './ts-file-map'
+import { resolveAlias } from './resolve-tsconfig-paths'
+import { normalize } from './normalize'
 
 export interface Result<T> {
   result: T | null
@@ -11,13 +12,13 @@ export class LanguageService {
   private files = new TsFileMap()
   private tsService: ts.LanguageService
 
-  constructor (rootFileNames: string[], private options: ts.CompilerOptions) {
+  constructor (rootFileNames: string[], options: ts.CompilerOptions) {
     rootFileNames.forEach(file => {
       this.files.updateFile(file)
     })
 
     const serviceHost = this.makeServiceHost(options)
-    this.tsService = ts.createLanguageService(serviceHost, ts.createDocumentRegistry())
+    this.tsService = ts.createLanguageService(serviceHost, ts.createDocumentRegistry(true, process.cwd()))
   }
 
   updateFile (fileName: string): void {
@@ -39,12 +40,12 @@ export class LanguageService {
       }
     }
 
-    const output = this.tsService.getEmitOutput(fileName, true)
+    const output = this.tsService.getEmitOutput(fileName, true, true)
     const errors = this.collectErrorMessages(fileName)
 
-    if (errors.length === 0) {
+    if (errors.length === 0 && !output.emitSkipped) {
       const result = output.outputFiles
-        .filter(file => /\.d\.ts$/.test(file.name))[0].text
+        .filter(file => /\.d\.tsx?$/.test(file.name))[0].text
 
       return {
         result,
@@ -69,12 +70,12 @@ export class LanguageService {
       getCurrentDirectory: () => process.cwd(),
       getCompilationSettings: () => options,
       getDefaultLibFileName: options => ts.getDefaultLibFilePath(options),
-      resolveModuleNames: (moduleNames, containingFile) => {
+      resolveModuleNames: (moduleNames, containingFile, _, __, options) => {
         return moduleNames.map(name => {
           if (/\.vue$/.test(name)) {
             return {
-              resolvedFileName: normalize(path.resolve(path.dirname(containingFile), name)),
-              extension: ts.Extension.Ts
+              resolvedFileName: normalize(resolveAlias(options, containingFile, name)),
+              extension: ts.Extension.Tsx
             }
           }
           return ts.resolveModuleName(name, containingFile, options, ts.sys).resolvedModule
@@ -98,13 +99,4 @@ export class LanguageService {
       return message
     })
   }
-}
-
-// .ts suffix is needed since the compiler skips compile
-// if the file name seems to be not supported types
-function normalize (fileName: string): string {
-  if (/\.vue$/.test(fileName)) {
-    return fileName + '.ts'
-  }
-  return fileName
 }

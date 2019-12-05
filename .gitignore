@@ -6,3 +6,4 @@ node_modules/
 /test/fixtures/**/*.d.ts
 /test/.tmp/
 
+yarn-error.log

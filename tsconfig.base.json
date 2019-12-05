@@ -1,11 +1,14 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "jsx": "preserve",
+    "jsxFactory": "h",
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": [
-      "es2015"
+      "es2015",
+      "dom"
     ],
     "strict": true
   }

@@ -1,4 +1,4 @@
-import chalk from 'chalk'
+import * as chalk from 'chalk'
 
 export function logEmitted (filePath: string): void {
   console.log(chalk.green('Emitted: ') + filePath)

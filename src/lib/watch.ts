@@ -1,8 +1,10 @@
+import path = require('path')
 import ts = require('typescript')
 import chokidar = require('chokidar')
 import { writeFile, unlink } from './file-util'
 import { LanguageService } from './language-service'
 import { logEmitted, logRemoved, logError } from './logger'
+import allSettled = require('promise.allsettled')
 
 export function watch (
   dirs: string[],
@@ -19,31 +21,37 @@ export function watch (
   })
 
   watcher
-    .on('add', rawFile => {
-      service.getHostVueFilePaths(rawFile).forEach(file => {
-        service.updateFile(file)
-        saveDts(file, service)
-      })
+    .on('add', async rawFile => {
+      await allSettled(
+        service.getHostVueFilePaths(rawFile).map(file => {
+          service.updateFile(file)
+          return saveDts(file, service)
+        })
+      )
     })
-    .on('change', rawFile => {
-      service.getHostVueFilePaths(rawFile).forEach(file => {
-        service.updateFile(file)
-        saveDts(file, service)
-      })
+    .on('change', async rawFile => {
+      await allSettled(
+        service.getHostVueFilePaths(rawFile).map(file => {
+          service.updateFile(file)
+          return saveDts(file, service)
+        })
+      )
     })
-    .on('unlink', rawFile => {
-      service.getHostVueFilePaths(rawFile).forEach(file => {
-        service.updateFile(file)
-        removeDts(file)
-      })
+    .on('unlink', async rawFile => {
+      await allSettled(
+        service.getHostVueFilePaths(rawFile).map(file => {
+          service.updateFile(file)
+          return removeDts(file)
+        })
+      )
     })
 
   return watcher
 }
 
-function saveDts (fileName: string, service: LanguageService): void {
+async function saveDts(fileName: string, service: LanguageService): Promise<void> {
   const dts = service.getDts(fileName)
-  const dtsName = fileName + '.d.ts'
+  const dtsName = `${fileName}${ts.Extension.Dts}`
 
   if (dts.errors.length > 0) {
     logError(dtsName, dts.errors)
@@ -52,19 +60,20 @@ function saveDts (fileName: string, service: LanguageService): void {
 
   if (dts.result === null) return
 
-  writeFile(dtsName, dts.result)
-    .then(
-      () => logEmitted(dtsName),
-      err => logError(dtsName, [err.message])
-    )
+  try {
+    await writeFile(dtsName, dts.result)
+    logEmitted(dtsName)
+  } catch (e) {
+    logError(dtsName, [e.message])
+  }
 }
 
-function removeDts (fileName: string): void {
-  const dtsName = fileName + '.d.ts'
-  unlink(dtsName)
-    .then(
-      () => logRemoved(dtsName),
-      err => logError(dtsName, [err.message])
-    )
+async function removeDts (fileName: string): Promise<void> {
+  const dtsName = `${fileName}${ts.Extension.Dts}`
+  try {
+    await unlink(dtsName)
+    logRemoved(dtsName)
+  } catch (e) {
+    logError(dtsName, [e.message])
+  }
 }
-

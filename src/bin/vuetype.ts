@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import assert = require('assert')
 import path = require('path')
 import program = require('commander')
 import { globSync, deepestSharedRoot } from '../lib/file-util'
@@ -17,21 +16,54 @@ program
   .option('-w, --watch', 'watch file changes')
   .parse(process.argv)
 
-if (program.args.length === 0) {
-  program.help()
-} else {
+function getConfig() {
   const root = path.resolve(deepestSharedRoot(program.args))
   const configPath = findConfig(root)
   const config = configPath && readConfig(configPath)
-  const options = config ? config.options : {}
-
-  if (program['watch']) {
-    watch(program.args, options)
+  if (configPath) {
+    console.log(`use this tsconfig.json: ${configPath}`)
   } else {
-    const patterns = program.args.map(arg => {
-      return path.join(arg, '**/*.vue')
-    })
-    generate(globSync(patterns), options)
+    console.log(`tsconfig.json not found in your project`)
+  }
+
+  if (!config) {
+    return {
+      strict: false,
+      allowNonTsExtensions: true,
+      allowJs: true,
+      emitDeclarationOnly: true,
+      declaration: true,
+      experimentalDecorators: true,
+      noImplicitAny: false,
+      noUnusedLocals: false,
+      noUnusedParameters: false,
+      checkJs: true
+    }
+  }
+
+  return {
+    ...config.options,
+    allowNonTsExtensions: true,
+    allowJs: true,
+    emitDeclarationOnly: true,
+    declaration: true,
+    experimentalDecorators: true,
+    noImplicitAny: false,
+    noUnusedLocals: false,
+    noUnusedParameters: false,
+    checkJs: true
   }
 }
 
+if (program.args.length === 0) {
+  program.help()
+} else {
+  const options = getConfig()
+
+  if (program['watch']) {
+    watch(program.args.map(arg => path.join(arg, '**/*.vue')), options)
+  } else {
+    const files = globSync(program.args.map(arg => path.join(arg, '**/*.vue')))
+    generate([...program.args, ...files], options)
+  }
+}

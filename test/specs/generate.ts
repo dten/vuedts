@@ -9,6 +9,10 @@ const fixtures = (...parts: string[]) => path.join(testDir, 'fixtures', ...parts
 const expects = (...parts: string[]) => path.join(testDir, 'expects', ...parts)
 
 const compilerOptions: ts.CompilerOptions = {
+  jsx: ts.JsxEmit.Preserve,
+  jsxFactory: 'h',
+  emitDeclarationOnly: true,
+  declaration: true,
   experimentalDecorators: true
 }
 
@@ -26,6 +30,10 @@ function notExists(fileName: string) {
   assert.ok(!fs.existsSync(fileName))
 }
 
+function exists(fileName: string) {
+  assert.ok(fs.existsSync(fileName))
+}
+
 describe('generate', () => {
   it('should emit d.ts for class component in sfc', () => {
     return gen(fixtures('ts-class.vue'), compilerOptions).then(() => {
@@ -39,21 +47,15 @@ describe('generate', () => {
     })
   })
 
-  it('should not emit d.ts for js', () => {
+  it('should emit d.ts for js', () => {
     return gen(fixtures('js.vue'), {}).then(() => {
-      notExists(fixtures('js.vue.d.ts'))
+      exists(fixtures('js.vue.d.ts'))
     })
   })
 
   it('should not emit d.ts for normal ts', () => {
     return gen(fixtures('not-vue.ts'), {}).then(() => {
       notExists(fixtures('not-vue.d.ts'))
-    })
-  })
-
-  it('should not emit d.ts if there are errors', () => {
-    return gen(fixtures('ts-error.vue'), compilerOptions).then(() => {
-      notExists(fixtures('ts-error.vue.d.ts'))
     })
   })
 

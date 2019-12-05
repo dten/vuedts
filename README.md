@@ -1,7 +1,10 @@
-# vuetype
+# vue-type-declaration
+
+This repository is fork from https://github.com/ktsn/vuetype
+Because that repository has not maintained now.
 
 [![npm version](https://badge.fury.io/js/vuetype.svg)](https://badge.fury.io/js/vuetype)
-[![Build Status](https://travis-ci.org/ktsn/vuetype.svg?branch=master)](https://travis-ci.org/ktsn/vuetype)
+[![Build Status](https://travis-ci.org/kahirokunn/vuetype.svg?branch=master)](https://travis-ci.org/kahirokunn/vuetype)
 
 Generate TypeScript declaration files for .vue files
 
@@ -10,8 +13,8 @@ Generate TypeScript declaration files for .vue files
 You can use `vuetype` command after exec one of following commands.
 
 ```bash
-$ npm install --global vuetype # npm
-$ yarn global add vuetype # yarn
+$ npm install --global vue-type-declaration # npm
+$ yarn global add vue-type-declaration # yarn
 ```
 
 ## Usage
