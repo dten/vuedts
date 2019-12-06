@@ -4,6 +4,7 @@ import allSettled = require('promise.allsettled')
 import { LanguageService } from './language-service'
 import { writeFile } from './file-util'
 import { logEmitted, logError } from './logger'
+import { getTypeRootsDts } from './type-roots'
 
 export function generate (filenames: string[], options: ts.CompilerOptions): Promise<void> {
   const vueFiles = filenames
@@ -11,7 +12,10 @@ export function generate (filenames: string[], options: ts.CompilerOptions): Pro
     .map(file => path.resolve(file))
 
   // Should not emit if some errors are occurred
-  const service = new LanguageService(vueFiles, {
+  const service = new LanguageService([
+    ...getTypeRootsDts(options),
+    ...vueFiles
+  ], {
     ...options,
     declaration: true,
     noEmitOnError: true

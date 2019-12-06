@@ -5,13 +5,17 @@ import { writeFile, unlink } from './file-util'
 import { LanguageService } from './language-service'
 import { logEmitted, logRemoved, logError } from './logger'
 import allSettled = require('promise.allsettled')
+import { getTypeRootsDts } from './type-roots'
 
 export function watch (
   dirs: string[],
   compilerOptions: ts.CompilerOptions = {},
   usePolling: boolean = false
 ): chokidar.FSWatcher {
-  const watcher = chokidar.watch(dirs, {
+  const watcher = chokidar.watch([
+    ...getTypeRootsDts(compilerOptions),
+    ...dirs
+  ], {
     usePolling
   })
 
