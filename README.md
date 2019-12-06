@@ -8,6 +8,10 @@ Because that repository has not maintained now.
 
 Generate TypeScript declaration files for .vue files
 
+## Sample Repository
+
+https://github.com/kahirokunn/book-management/pull/75
+
 ## Installation
 
 You can use `vuedts` command after exec one of following commands.
