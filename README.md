@@ -8,6 +8,11 @@ Because that repository has not maintained now.
 
 Generate TypeScript declaration files for .vue files
 
+## Warning
+
+This tool has not support global declaration files.
+ex. typeRoots...etc
+
 ## Installation
 
 You can use `vuedts` command after exec one of following commands.
