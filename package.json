@@ -1,5 +1,5 @@
 {
-  "name": "vue-type-declaration",
+  "name": "vuedts",
   "version": "1.0.0",
   "author": "kahirokunn",
   "description": "Generate TypeScript declaration files for .vue files",
@@ -16,14 +16,14 @@
   ],
   "main": "dist/lib/api.js",
   "typings": "dist/lib/api.d.ts",
-  "homepage": "https://github.com/kahirokunn/vuetype",
-  "bugs": "https://github.com/kahirokunn/vuetype/issues",
+  "homepage": "https://github.com/kahirokunn/vuedts",
+  "bugs": "https://github.com/kahirokunn/vuedts/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kahirokunn/vuetype.git"
+    "url": "https://github.com/kahirokunn/vuedts.git"
   },
   "bin": {
-    "vuetype": "dist/bin/vuetype.js"
+    "vuedts": "dist/bin/vuedts.js"
   },
   "scripts": {
     "prepublishOnly": "npm run lint && npm run test && npm run clean && npm run build",

@@ -1,28 +1,28 @@
-# vue-type-declaration
+# vuedts
 
 This repository is fork from https://github.com/ktsn/vuetype
 Because that repository has not maintained now.
 
-[![npm version](https://badge.fury.io/js/vuetype.svg)](https://badge.fury.io/js/vuetype)
-[![Build Status](https://travis-ci.org/kahirokunn/vuetype.svg?branch=master)](https://travis-ci.org/kahirokunn/vuetype)
+[![npm version](https://badge.fury.io/js/vuedts.svg)](https://badge.fury.io/js/vuedts)
+[![Build Status](https://travis-ci.org/kahirokunn/vuedts.svg?branch=master)](https://travis-ci.org/kahirokunn/vuedts)
 
 Generate TypeScript declaration files for .vue files
 
 ## Installation
 
-You can use `vuetype` command after exec one of following commands.
+You can use `vuedts` command after exec one of following commands.
 
 ```bash
-$ npm install --global vue-type-declaration # npm
-$ yarn global add vue-type-declaration # yarn
+$ npm install --global vuedts # npm
+$ yarn global add vuedts # yarn
 ```
 
 ## Usage
 
-Specify the directory that includes your `.vue` files as the 2nd argument of `vuetype` command. Note that the `.vue` files should have TypeScript code (in `<script lang="ts">` element).
+Specify the directory that includes your `.vue` files as the 2nd argument of `vuedts` command. Note that the `.vue` files should have TypeScript code (in `<script lang="ts">` element).
 
 ```bash
-vuetype src/components
+vuedts src/components
 ```
 
 Then `.vue.d.ts` file corresponding `.vue` file will be output. So you can import each `.vue` component with concrete type declaration! This would useful if you would like to unit test your components in TypeScript.
@@ -56,10 +56,10 @@ export default class MyComp extends Vue {
 
 ### Watch mode
 
-You can enable watch mode by adding `--watch` (shorthand `-w`) flag. In the watch mode, vuetype watches update of `.vue` files and generates declaration files when the `.vue` files are updated.
+You can enable watch mode by adding `--watch` (shorthand `-w`) flag. In the watch mode, vuedts watches update of `.vue` files and generates declaration files when the `.vue` files are updated.
 
 ```bash
-vuetype --watch src/components
+vuedts --watch src/components
 ```
 
 ## License
