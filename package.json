@@ -1,6 +1,6 @@
 {
-  "name": "vuedts",
-  "version": "1.0.0",
+  "name": "vue-type-declaration",
+  "version": "1.2.0",
   "author": "kahirokunn",
   "description": "Generate TypeScript declaration files for .vue files",
   "keywords": [

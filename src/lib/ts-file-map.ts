@@ -140,7 +140,7 @@ function extractCode (
 
   if (script == null || !['ts', 'tsx', 'js', 'jsx', undefined].includes(script.lang)) {
     return {
-      content: undefined,
+      content: 'export default {}',
       srcPath: undefined
     }
   }
