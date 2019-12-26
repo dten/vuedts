@@ -41,6 +41,8 @@ function getConfig() {
     }
   }
 
+  delete config.options.noEmit
+
   return {
     ...config.options,
     allowNonTsExtensions: true,
