@@ -17,8 +17,8 @@ https://github.com/kahirokunn/book-management/pull/75
 You can use `vuedts` command after exec one of following commands.
 
 ```bash
-$ npm install --global vue-type-declaration # npm
-$ yarn global add vue-type-declaration # yarn
+$ npm install --global @kahirokunn/vuedts # npm
+$ yarn global add @kahirokunn/vuedts # yarn
 ```
 
 ## Usage
