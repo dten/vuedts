@@ -26,18 +26,20 @@ function getConfig() {
     console.log(`tsconfig.json not found in your project`)
   }
 
+  const base = {
+    allowNonTsExtensions: true,
+    emitDeclarationOnly: true,
+    declaration: true,
+    experimentalDecorators: true,
+    noImplicitAny: false,
+    noUnusedLocals: false,
+    noUnusedParameters: false
+  }
+
   if (!config) {
     return {
       strict: false,
-      allowNonTsExtensions: true,
-      allowJs: true,
-      emitDeclarationOnly: true,
-      declaration: true,
-      experimentalDecorators: true,
-      noImplicitAny: false,
-      noUnusedLocals: false,
-      noUnusedParameters: false,
-      checkJs: true
+      ...base
     }
   }
 
@@ -45,15 +47,7 @@ function getConfig() {
 
   return {
     ...config.options,
-    allowNonTsExtensions: true,
-    allowJs: true,
-    emitDeclarationOnly: true,
-    declaration: true,
-    experimentalDecorators: true,
-    noImplicitAny: false,
-    noUnusedLocals: false,
-    noUnusedParameters: false,
-    checkJs: true
+    ...base
   }
 }
 
