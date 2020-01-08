@@ -6,7 +6,7 @@ import { writeFile } from './file-util'
 import { logEmitted, logError } from './logger'
 import { getTypeRootsDts } from './type-roots'
 
-export function generate (filenames: string[], options: ts.CompilerOptions): Promise<void> {
+export async function generate (filenames: string[], options: ts.CompilerOptions): Promise<void> {
   const vueFiles = filenames
     .filter(file => /\.vue$/.test(file))
     .map(file => path.resolve(file))
@@ -21,7 +21,7 @@ export function generate (filenames: string[], options: ts.CompilerOptions): Pro
     noEmitOnError: true
   })
 
-  return allSettled(
+  await allSettled(
     vueFiles.map(file => {
       const dts = service.getDts(file)
       const dtsPath = `${file}${ts.Extension.Dts}`
@@ -38,5 +38,5 @@ export function generate (filenames: string[], options: ts.CompilerOptions): Pro
           logEmitted(dtsPath)
         })
     })
-  ).then(() => { return })
+  )
 }
