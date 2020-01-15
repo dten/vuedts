@@ -14,13 +14,23 @@ program
   .version(meta.version)
   .usage('<directory...>')
   .option('-w, --watch', 'watch file changes')
+  .option('-c, --config <path>', 'pass your tsconfig.json path')
   .parse(process.argv)
 
-function getConfig() {
-  const root = path.resolve(deepestSharedRoot(program.args))
-  const configPath = findConfig(root)
-  const config = configPath && readConfig(configPath)
+function getConfig(configPath?: string) {
+  let config: ReturnType<typeof readConfig>
   if (configPath) {
+    configPath = path.resolve(configPath)
+    config = readConfig(configPath)
+  } else {
+    const root = path.resolve(deepestSharedRoot(program.args))
+    configPath = findConfig(root)
+    if (configPath) {
+      config = readConfig(configPath)
+    }
+  }
+
+  if (configPath && config) {
     console.log(`use this tsconfig.json: ${configPath}`)
   } else {
     console.log(`tsconfig.json not found in your project`)
@@ -54,7 +64,7 @@ function getConfig() {
 if (program.args.length === 0) {
   program.help()
 } else {
-  const options = getConfig()
+  const options = getConfig(program['config'])
 
   if (program['watch']) {
     watch(program.args.map(arg => path.join(arg, '**/*.vue')), options)
