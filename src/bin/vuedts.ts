@@ -65,11 +65,12 @@ if (program.args.length === 0) {
   program.help()
 } else {
   const options = getConfig(program['config'])
+  const files = globSync(program.args.map(arg => path.join(arg, '**/*.vue')))
+  const targets = [...program.args, ...files]
 
   if (program['watch']) {
-    watch(program.args.map(arg => path.join(arg, '**/*.vue')), options)
+    watch(targets, options)
   } else {
-    const files = globSync(program.args.map(arg => path.join(arg, '**/*.vue')))
-    generate([...program.args, ...files], options)
+    generate(targets, options)
   }
 }

@@ -1,10 +1,8 @@
-import path = require('path')
 import ts = require('typescript')
 import chokidar = require('chokidar')
 import { writeFile, unlink } from './file-util'
 import { LanguageService } from './language-service'
 import { logEmitted, logRemoved, logError } from './logger'
-import allSettled = require('promise.allsettled')
 import { getTypeRootsDts } from './type-roots'
 
 export function watch (
@@ -25,29 +23,23 @@ export function watch (
   })
 
   watcher
-    .on('add', async rawFile => {
-      await allSettled(
-        service.getHostVueFilePaths(rawFile).map(file => {
-          service.updateFile(file)
-          return saveDts(file, service)
-        })
-      )
+    .on('add', rawFile => {
+      service.getHostVueFilePaths(rawFile).map(file => {
+        service.updateFile(file)
+        saveDts(file, service)
+      })
     })
-    .on('change', async rawFile => {
-      await allSettled(
-        service.getHostVueFilePaths(rawFile).map(file => {
-          service.updateFile(file)
-          return saveDts(file, service)
-        })
-      )
+    .on('change', rawFile => {
+      service.getHostVueFilePaths(rawFile).map(file => {
+        service.updateFile(file)
+        saveDts(file, service)
+      })
     })
-    .on('unlink', async rawFile => {
-      await allSettled(
-        service.getHostVueFilePaths(rawFile).map(file => {
-          service.updateFile(file)
-          return removeDts(file)
-        })
-      )
+    .on('unlink', rawFile => {
+      service.getHostVueFilePaths(rawFile).map(file => {
+        service.updateFile(file)
+        removeDts(file)
+      })
     })
 
   return watcher
