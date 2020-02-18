@@ -43,7 +43,8 @@ function getConfig(configPath?: string) {
     experimentalDecorators: true,
     noImplicitAny: false,
     noUnusedLocals: false,
-    noUnusedParameters: false
+    noUnusedParameters: false,
+    noEmitOnError: false
   }
 
   if (!config) {

@@ -15,11 +15,7 @@ export async function generate (filenames: string[], options: ts.CompilerOptions
   const service = new LanguageService([
     ...getTypeRootsDts(options),
     ...vueFiles
-  ], {
-    ...options,
-    declaration: true,
-    noEmitOnError: true
-  })
+  ], options)
 
   await allSettled(
     vueFiles.map(file => {

@@ -7,20 +7,19 @@ import { getTypeRootsDts } from './type-roots'
 
 export function watch (
   dirs: string[],
-  compilerOptions: ts.CompilerOptions = {},
+  options: ts.CompilerOptions = {},
   usePolling: boolean = false
 ): chokidar.FSWatcher {
-  const watcher = chokidar.watch([
-    ...getTypeRootsDts(compilerOptions),
+  const targets = [
+    ...getTypeRootsDts(options),
     ...dirs
-  ], {
+  ]
+
+  const watcher = chokidar.watch(targets, {
     usePolling
   })
 
-  const service = new LanguageService([], {
-    ...compilerOptions,
-    noEmitOnError: true
-  })
+  const service = new LanguageService(targets, options)
 
   watcher
     .on('add', rawFile => {
