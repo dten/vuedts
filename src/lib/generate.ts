@@ -18,7 +18,7 @@ export async function generate (filenames: string[], options: ts.CompilerOptions
   ], options)
 
   await allSettled(
-    vueFiles.map(file => {
+    vueFiles.map(file => new Promise((resolve, reject) => {
       const dts = service.getDts(file)
       const dtsPath = `${file}${ts.Extension.Dts}`
 
@@ -32,9 +32,15 @@ export async function generate (filenames: string[], options: ts.CompilerOptions
 
       return setImmediate(() => {
         writeFile(dtsPath, result)
-          .then(() => logEmitted(dtsPath))
-          .catch(e => logError(dtsPath, [e.message]))
+          .then(() => {
+            logEmitted(dtsPath)
+            resolve()
+          })
+          .catch(e => {
+            logError(dtsPath, [e.message])
+            reject()
+          })
       })
-    })
+    }))
   )
 }
