@@ -26,13 +26,13 @@ export function watch (
     .on('add', rawFile => {
       service.getHostVueFilePaths(rawFile).map(file => {
         service.updateFile(file)
-        saveDts(file, service)
+        setImmediate(() => saveDts(file, service))
       })
     })
     .on('change', rawFile => {
       service.getHostVueFilePaths(rawFile).map(file => {
         service.updateFile(file)
-        saveDts(file, service)
+        setImmediate(() => saveDts(file, service))
       })
     })
     .on('unlink', rawFile => {

@@ -30,13 +30,15 @@ export async function generate (filenames: string[], options: ts.CompilerOptions
         logError(dtsPath, dts.errors)
         return
       }
+      const { result } = dts
 
-      if (dts.result === null) return
+      if (result === null) return
 
-      return writeFile(dtsPath, dts.result)
-        .then(() => {
-          logEmitted(dtsPath)
-        })
+      return setImmediate(() => {
+        writeFile(dtsPath, result)
+          .then(() => logEmitted(dtsPath))
+          .catch(e => logError(dtsPath, [e.message]))
+      })
     })
   )
 }
