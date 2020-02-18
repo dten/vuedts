@@ -4,6 +4,14 @@ import { writeFile, unlink } from './file-util'
 import { LanguageService } from './language-service'
 import { logEmitted, logRemoved, logError } from './logger'
 import { getTypeRootsDts } from './type-roots'
+import { throttle } from 'throttle-debounce'
+
+const queue: Array<() => {}> = []
+
+const runAll = throttle(500, () => {
+  queue.forEach(job => setImmediate(job))
+})
+
 
 export function watch (
   dirs: string[],
@@ -25,13 +33,15 @@ export function watch (
     .on('add', rawFile => {
       service.getHostVueFilePaths(rawFile).map(file => {
         service.updateFile(file)
-        setImmediate(() => saveDts(file, service))
+        queue.push(() => saveDts(file, service))
+        runAll()
       })
     })
     .on('change', rawFile => {
       service.getHostVueFilePaths(rawFile).map(file => {
         service.updateFile(file)
-        setImmediate(() => saveDts(file, service))
+        queue.push(() => saveDts(file, service))
+        runAll()
       })
     })
     .on('unlink', rawFile => {
