@@ -29,7 +29,7 @@ Specify the directory that includes your `.vue` files as the 2nd argument of `vu
 vuedts src/components
 ```
 
-Then `.vue.d.ts` file corresponding `.vue` file will be output. So you can import each `.vue` component with concrete type declaration! This would useful if you would like to unit test your components in TypeScript.
+Then `.vue.d.ts` file corresponding `.vue` file will be output. So you can import each `.vue` component with concrete type declaration! This would help your editor inspect.
 
 For example, if there is the following component:
 
