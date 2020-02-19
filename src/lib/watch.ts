@@ -9,9 +9,10 @@ import { throttle } from 'throttle-debounce'
 const queue: Array<() => {}> = []
 
 const runAll = throttle(500, () => {
-  queue.forEach(job => setImmediate(job))
+  while (queue.length) {
+    setImmediate(queue.pop() as () => {})
+  }
 })
-
 
 export function watch (
   dirs: string[],
