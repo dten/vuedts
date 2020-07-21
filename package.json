@@ -1,6 +1,6 @@
 {
   "name": "@kahirokunn/vuedts",
-  "version": "1.3.2",
+  "version": "1.3.4",
   "author": "kahirokunn",
   "description": "Generate TypeScript declaration files for .vue files",
   "keywords": [
@@ -26,7 +26,7 @@
     "vuedts": "dist/bin/vuedts.js"
   },
   "scripts": {
-    "prepublishOnly": "yarn lint && yarn test && yarn clean && yarn build",
+    "prepublishOnly": "yarn lint && yarn clean && yarn build",
     "clean": "rimraf dist",
     "dev": "tsc -p src -w",
     "build": "tsc -p src",
@@ -38,38 +38,38 @@
   },
   "devDependencies": {
     "@types/commander": "^2.12.2",
-    "@types/glob": "^7.1.1",
+    "@types/glob": "^7.1.3",
     "@types/memory-fs": "^0.3.2",
-    "@types/mocha": "^7.0.1",
-    "@types/node": "^12.12.14",
-    "@types/power-assert": "^1.5.0",
-    "@types/promise.allsettled": "^1.0.2",
-    "@types/rimraf": "^2.0.3",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^14.0.24",
+    "@types/power-assert": "^1.5.3",
+    "@types/promise.allsettled": "^1.0.3",
+    "@types/rimraf": "^3.0.0",
     "espower-typescript": "^9.0.2",
     "memory-fs": "^0.5.0",
-    "mocha": "^6.2.2",
+    "mocha": "^8.0.1",
     "power-assert": "^1.6.1",
-    "rimraf": "^3.0.0",
-    "tslint": "^5.20.1",
+    "rimraf": "^3.0.2",
+    "tslint": "^6.1.2",
     "tslint-config-ktsn": "^2.1.0",
-    "typescript": "^3.7.3",
-    "vue": "^2.6.10",
-    "vue-class-component": "^7.1.0",
-    "vue-template-compiler": "^2.6.10"
+    "typescript": "^3.9.7",
+    "vue": "^2.6.11",
+    "vue-class-component": "^7.2.4",
+    "vue-template-compiler": "^2.6.11"
   },
   "dependencies": {
     "@types/glob-to-regexp": "^0.4.0",
     "@types/throttle-debounce": "^2.1.0",
-    "chalk": "^3.0.0",
-    "chokidar": "^3.3.0",
-    "commander": "^4.0.1",
+    "chalk": "^4.1.0",
+    "chokidar": "^3.4.1",
+    "commander": "^6.0.0",
     "glob": "^7.1.6",
     "glob-to-regexp": "^0.4.1",
-    "promise.allsettled": "^1.0.1",
-    "throttle-debounce": "^2.1.0"
+    "promise.allsettled": "^1.0.2",
+    "throttle-debounce": "^2.2.1"
   },
   "peerDependencies": {
-    "typescript": "^3.7.3",
-    "vue-template-compiler": "^2.6.10"
+    "typescript": "^3.9.7",
+    "vue-template-compiler": "^2.6.11"
   }
 }
